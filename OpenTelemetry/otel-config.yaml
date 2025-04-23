@@ -1,0 +1,188 @@
+# Copyright 2025 Dell, Inc.
+receivers:
+    prometheus:
+      config:
+        scrape_configs:
+          - job_name: 'otel-collector'
+            scrape_interval: 5s
+            static_configs:
+            # Prometheus input address/port
+              - targets: ['0.0.0.0:9080']
+exporters:
+   file/metrics:
+     path: /etc/otel-col-contrib/metrics.log
+   otlphttp:
+     # Endpoint receiver address/port
+     endpoint: "http://0.0.0.0:9009/otlp"
+     headers:
+      authorization: "Authorization Key for the OTLP receiver (as required)"     
+
+processors:
+  metricstransform:
+    transforms:
+      - include: powermax_FEPort_ReadResponseTime
+        action: update
+        new_name: system.storage.fe_port.read_response_time 
+      - include: powermax_StorageGroup_PercentRead
+        action: update
+        new_name: system.storage.stor_grp.percent_read 
+      - include: powermax_StorageGroup_WPCount
+        action: update
+        new_name: system.storage.stor_grp.wp_count
+      - include: powermax_StorageGroup_BEWriteReqs
+        action: update
+        new_name: system.storage.stor_grp.be_write_reqs
+      - include: powermax_StorageGroup_PercentHit
+        action: update
+        new_name: system.storage.stor_grp.percent_hit
+      - include: powermax_Board_MaxSpeedMBs
+        action: update
+        new_name: system.storage.board.max_speed_mbs
+      - include: powermax_Array_SystemWPEvents
+        action: update
+        new_name: system.storage.array.system_wp_events
+      - include: powermax_Array_DA_Balance
+        action: update
+        new_name: system.storage.array.da_balance
+      - include: powermax_DiskGroup_MBReads
+        action: update
+        new_name: system.storage.disk_grp.mb_reads
+      - include: powermax_DiskGroup_MBWritten
+        action: update
+        new_name: system.storage.disk_grp.mb_written
+      - include: powermax_FEDirector_SyscallTimePerSec
+        action: update
+        new_name: system.storage.fe_dir.syscall_time_per_sec
+      - include: powermax_StorageGroup_HostHits
+        action: update
+        new_name: system.storage.stor_grp.host_hits
+      - include: powermax_StorageGroup_ExternalReadResponseTime
+        action: update
+        new_name: system.storage.stor_grp.external_read_response_time
+      - include: powermax_Array_LocalWPUsedCapacity
+        action: update
+        new_name: system.storage.array.local_wp_used_capacity
+      - include: powermax_Disk_MBReads
+        action: update
+        new_name: system.storage.disk.mb_reads
+      - include: powermax_Disk_ReadResponseTime
+        action: update
+        new_name: system.storage.disk.read_response_time
+      - include: powermax_Disk_TotalCapacity
+        action: update
+        new_name: system.storage.disk.total_capacity
+      - include: Powermax_DiskTechPool_ReadResponseTime
+        action: update
+        new_name: system.storage.disk_tech_pool.read_response_time
+      - include: powermax_FEPort_ResponseTime
+        action: update
+        new_name: system.storage.fe_port.response_time
+      - include: powermax_FEPort_MBs
+        action: update
+        new_name: system.storage.fe_port.mbs
+      - include: powermax_Array_FE_Balance
+        action: update
+        new_name: system.storage.array.fe.balance
+      - include: powermax_BEDirector_PercentBusy
+        action: update
+        new_name: system.storage.be_dir.percent_busy
+      - include: powermax_DiskTechPool_IOs
+        action: update
+        new_name: system.storage.disk_tech_pool.ios
+      - include: powermax_RDFDirector_MBWritten
+        action: update
+        new_name: system.storage.rdf_dir.mb_written
+      - include: powermax_RDFPort_MBRead
+        action: update
+        new_name: system.storage.rdf_port.mb_read
+      - include: powermax_SDNASNode_SMB2ReadResponseTime
+        action: update
+        new_name: system.storage.sdnas_node.smb2_read_response_time
+      - include: powermax_SRP_BEReqs
+        action: update
+        new_name: system.storage.srp.be_reqs
+      - include: powermax_StorageGroup_RdfResponseTime
+        action: update
+        new_name: system.storage.stor_grp.rdf_response_time
+      - include: powermax_DiskTechPool_MBs
+        action: update
+        new_name: system.stoage.disk_tech_pool.mbs 
+      - include: powermax_FEPort_ExternalResponseTime
+        action: update
+        new_name: system.storage.fe_port.external_response_time
+      - include: powermax_SDNASNode_CPULoadPercent
+        action: update
+        new_name: system.storage.sdnas_node.cpu_load_percent
+      - include: powermax_StorageGroup_ExternalResponseTime
+        action: update
+        new_name: system.storage.stor_grp.external_response_time
+      - include: powermax_Disk_PercentCapacityFree
+        action: update
+        new_name: system.storage.disk.percent_capacity_free
+      - include: powermax_Array_WriteResponseTime
+        action: update
+        new_name: system.storage.array.write_response_time
+      - include: powermax_Array_ReadResponseTime
+        action: update
+        new_name: system.storage.array.read_response_time
+      - include: powermax_Array_PercentReads
+        action: update
+        new_name: system.storage.array.percent_reads
+      - include: powermax_Array_PercentWrites
+        action: update
+        new_name: system.storage.array.percent_writes
+      - include: powermax_FEDirector_PercentBusy
+        action: update
+        new_name: system.storage.fe_director.percent_busy
+      - include: powermax_FEDirector_HostIOs
+        action: update
+        new_name: system.storage.fe_director.host_ios
+      - include: powermax_Array_BEIOs
+        action: update
+        new_name: system.storage.be_ios
+      - include: powermax_Array_DataReductionRatioOnReducible
+        action: update
+        new_name: system.storage.array.data_reduction_ratio_on_reducible
+      - include: powermax_Array_HostIOs
+        action: update
+        new_name: system.storage.array.host_ios
+      - include: powermax_Array_HostMBs
+        action: update
+        new_name: system.storage.array.host_mbs
+      - include: powermax_Array_PercentHit
+        action: update
+        new_name: system.storage.array.percent_hit
+      - include: powermax_RDFDirector_PercentBusy
+        action: update
+        new_name: system.storage.rdf_director.percent_busy
+      - include: powermax_RDFDirector_IOs
+        action: update
+        new_name: system.storage.rdf_director.ios
+      - include: powermax_DiskGroup_UsedCapacity
+        action: update
+        new_name: system.storage.disk_grp.used_capacity
+      - include: powermax_Array_DiskUtilization
+        action: update
+        new_name: system.storage.array.disk_utiliz
+      - include: powermax_FEDirector_HostMBs
+        action: update
+        new_name: system.storage.fe_director.host_mbs
+      - include: powermax_BEDirector_IOs
+        action: update
+        new_name: system.storage.be_director.ios
+      - include: powermax_FEPort_IOs
+        action: update
+        new_name: system.storage.fe_port.ios
+      - include: powermax_StorageGroup_WriteResponseTime
+        action: update
+        new_name: system.storage.storage_grp.write_response_time
+      - include: powermax_StorageGroup_HostWrites
+        action: update
+        new_name: system.storage.storage_grp.host_writes
+
+service:
+  pipelines:
+    metrics:
+      receivers: [prometheus]
+      processors: [metricstransform]
+      exporters: [otlphttp, file/metrics]

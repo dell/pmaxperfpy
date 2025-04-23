@@ -1,0 +1,12 @@
+[Unit]
+Description=PmaxperfPy Collector Container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start pmaxperfpy
+ExecStop=/usr/bin/docker stop -t 5 pmaxperfpy
+
+[Install]
+WantedBy=multi-user.target

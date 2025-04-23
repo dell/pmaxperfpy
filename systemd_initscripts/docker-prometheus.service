@@ -1,0 +1,12 @@
+[Unit]
+Description=Prometheus Container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start prometheus
+ExecStop=/usr/bin/docker stop -t 5 prometheus
+
+[Install]
+WantedBy=multi-user.target

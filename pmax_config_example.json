@@ -1,0 +1,56 @@
+{
+    "defaults": {
+        "username": "smc",
+        "password": "smc",
+        "unisphere_port": 8443,
+        "verify": true,
+        "interval": 300,
+        "exposed_port": 9080,
+        "categories": [
+            "Array",
+            "BEDirector",
+            "Disk",
+            "DiskGroup",
+            "DiskTechPool",
+            "FEDirector",
+            "FEPort",
+            "Host",
+            "IPInterface",
+            "Initiator",
+            "MaskingView",
+            "PortGroup",
+            "RDFA",
+            "RDFDirector",
+            "RDFPort",
+            "RDFS",
+            "SRP",
+            "StorageGroup",
+            "StorageGroupCapacity"
+        ],
+        "disabled_categories": [
+            "Board",
+            "DIMM",
+            "EMDirector",
+            "Endpoint",
+            "VolumesCapacity"
+        ]
+    },
+    "unispheres": [
+        {
+            "hostname": "1.2.3.4"
+        },
+        {
+            "hostname": "4.3.2.1",
+            "password": "secret"
+        },
+        {
+            "hostname": "5.6.7.8",
+            "username": {
+                "fromEnvironment": "PMAX5678_USERNAME"
+            },
+            "password": {
+                "fromEnvironment": "PMAX5678_PASSWORD"
+            }
+        }
+    ]
+}
