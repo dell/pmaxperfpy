@@ -1,2 +1,2 @@
 prometheus-client
-pyu4v == 10.1.0.2
+pyu4v >= 10.1.0.2

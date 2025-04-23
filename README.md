@@ -9,11 +9,11 @@ For customers interested in consuming **OpenTelemetry** data from the PowerMax p
 * Clone or copy the repository package to a local directory, for example /opt
 
 ### Verify / edit requirements
-The version of the PyU4V library has to match the Unisphere version of the PowerMax array. An older library version can still work but it is recommended to use the exact same one. In ```requirements.txt``` the exact version is specified, please change if needed
+The version of the PyU4V library has to match the Unisphere version of the PowerMax array. An older library version can still work but it is recommended to use the exact same version. By default, pmaxperfpy uses the latest available version. This can be changed in ```requirements.txt``` to the exact desired version, if needed.
 ```
 $ cat requirements.txt
 prometheus-client
-pyu4v == 10.1.0.2
+pyu4v >= 10.1.0.2
 ```
 
 ### Build the container image
