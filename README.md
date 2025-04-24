@@ -17,12 +17,15 @@ pyu4v >= 10.1.0.2
 ```
 
 ### Build the container image
+
+Note: app directory will need to be created if not already present, or if you have chosen a different directory. Copy requirements.txt to this directory.
+
 ```
 docker build -t pmaxperfpy:latest app
 ```
 
 ### Copy and edit the configuration file
-* Please copy the provided pmax_config_example.json to pmax_config.json
+* Please copy the provided pmax_config_example.json to pmax_config.json to app directory.
 
 The config file uses JSON syntax. It has a defaults sections and then one or more unisphere sections. Parameters, like username and password, for example, can be specified at the defaults section (valid for all Unispheres) or can be overriden on a per Unisphere section.
 Both username and password can be specfified as values directly or as a dictionary with the key "fromEnvironment" to take the value from an environment variable at runtime.
