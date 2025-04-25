@@ -1,9 +1,9 @@
 # PowerMax performance collector
-Collect PowerMax performance data for use with Prometheus and Grafana. PmaxPerfPy uses the PyU4V library to collect performance data from Unisphere, see https://github.com/dell/PyU4V.
+Collect PowerMax performance data for use with Prometheus/Grafana or OpenTelemetry. PmaxPerfPy uses the PyU4V library to collect performance data from Unisphere, see https://github.com/dell/PyU4V.
 
 ![Grafana Dashboard](Grafana/dashboard_screenshot.png "Grafana Dashboard")
 
-For customers interested in consuming **OpenTelemetry** data from the PowerMax performance collector, please see the OpenTelemetry section at the end of this README.
+For customers interested in consuming **OpenTelemetry** data from the PowerMax performance collector, please see the OpenTelemetry section at the end of this README and the [OpenTelemetry README](OpenTelemetry/README.md)
 
 ## Installation
 * Clone or copy the repository package to a local directory, for example /opt
@@ -96,4 +96,4 @@ systemctl enable docker-prometheus.service
 
 ### OpenTelemetry Setup
 
-Please see the OpenTelemetry README in the OpenTelemetry folder for information on the setup and configuration of the OpenTelemetry Collector for the PowerMax performance collector. 
+Please see the [OpenTelemetry README](OpenTelemetry/README.md) in the OpenTelemetry folder for information on the setup and configuration of the OpenTelemetry Collector for the PowerMax performance collector. 

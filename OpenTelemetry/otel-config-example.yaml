@@ -6,11 +6,9 @@ receivers:
           - job_name: 'otel-collector'
             scrape_interval: 5s
             static_configs:
-            # Prometheus input address/port
-              - targets: ['0.0.0.0:9080']
+            # pmax collector input address/port
+              - targets: ['0.0.0.0:8080']
 exporters:
-   file/metrics:
-     path: /etc/otel-col-contrib/metrics.log
    otlphttp:
      # Endpoint receiver address/port
      endpoint: "http://0.0.0.0:9009/otlp"
