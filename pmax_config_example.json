@@ -5,7 +5,7 @@
         "unisphere_port": 8443,
         "verify": true,
         "interval": 300,
-        "exposed_port": 9080,
+        "exposed_port": 8080,
         "categories": [
             "Array",
             "BEDirector",

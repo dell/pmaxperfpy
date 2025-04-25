@@ -26,7 +26,6 @@ from modules.config import Config
 from modules.storagegroup import StorageGroup
 from modules.volumes import Volumes
 
-
 METRIC_CLASSES = {
     # 'Array': Array,
     # 'BEDirector': BeDirector,

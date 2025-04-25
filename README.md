@@ -22,7 +22,7 @@ docker build -t pmaxperfpy:latest app
 ```
 
 ### Copy and edit the configuration file
-* Please copy the provided pmax_config_example.json to pmax_config.json
+* Please copy the provided pmax_config_example.json to pmax_config.json ``` cp pmax_config_example.json pmax_config.json ```
 
 The config file uses JSON syntax. It has a defaults sections and then one or more unisphere sections. Parameters, like username and password, for example, can be specified at the defaults section (valid for all Unispheres) or can be overriden on a per Unisphere section.
 Both username and password can be specfified as values directly or as a dictionary with the key "fromEnvironment" to take the value from an environment variable at runtime.
@@ -50,8 +50,12 @@ For Kubernetes please create a corresponding secret and configmap entry for the 
 
 ### Run at the command line or use the provided docker start script
 ```
-./pmaxperf.py
-start_pmaxperfpy.sh
+docker run \
+	--publish 8080:8080 \
+	--detach=true \
+	--mount type=bind,source=./pmax_config.json,target=/pmaxperfpy/pmax_config.json,readonly \
+	--name pmaxperfpy \
+	pmaxperfpy:latest
 ```
 
 #### Setup the target configuration for prometheus

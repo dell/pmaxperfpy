@@ -6,6 +6,5 @@ COPY requirements.txt /
 RUN pip install -r /requirements.txt
 COPY . /pmaxperfpy
 EXPOSE  8080
-VOLUME [ "/pmaxperfpy" ]
 WORKDIR /pmaxperfpy
 ENTRYPOINT [ "/pmaxperfpy/pmaxperf.py" ]
