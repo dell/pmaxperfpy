@@ -1,11 +1,9 @@
 #!/bin/bash
-basedir=$(pwd)
 port=8080
 
 docker run \
 	--publish $port:8080 \
 	--detach=true \
-	--network="host" \
-	--volume $basedir/pmaxperf.cfg:/pmaxperfpy/pmaxperf.cfg \
+	--mount type=bind,source=./pmax_config.json,target=/pmaxperfpy/pmax_config.json,readonly \
 	--name pmaxperfpy \
 	pmaxperfpy:latest
