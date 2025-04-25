@@ -7,6 +7,10 @@ For customers interested in consuming **OpenTelemetry** data from the PowerMax p
 
 ## Installation
 * Clone or copy the repository package to a local directory, for example /opt
+```
+cd /opt
+git clone https://github.com/dell/pmaxperfpy
+```
 
 ### Verify / edit requirements
 The version of the PyU4V library has to match the Unisphere version of the PowerMax array. An older library version can still work but it is recommended to use the exact same version. By default, pmaxperfpy uses the latest available version. This can be changed in ```requirements.txt``` to the exact desired version, if needed.
