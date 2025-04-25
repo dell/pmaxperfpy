@@ -18,12 +18,11 @@ Copy the otel-config-example.yaml file from this repository to an appropriate lo
 ```
 cp otel-config-example.yaml otel-config.yaml
 ```
-### Edit IP in the configuration file
+### Edit the IP addresses in the configuration file
 Edit the configuration file to supply:
 * The IP address/port number for your Prometheus profiler
 * The IP address/port number for your OpenTelemetry Receiver (the OTLP receiver, for example: Grafana Mimir)
 * The authorization key/token for the receiver (as required)
-(localhost / 127.0.0.1) does not work with docker. Please specifiy the external IP)
 
 Then deploy, configure and run the OpenTelemetry (Contrib) Collector (which includes the Prometheus receiver) using either of the following methods:
 
