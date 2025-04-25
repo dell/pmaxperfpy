@@ -19,4 +19,4 @@ scrape_configs:
   scheme: http
   static_configs:
   - targets:
-    - 192.168.178.105:9080
+    - 192.168.178.105:8080
