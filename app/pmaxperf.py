@@ -15,26 +15,10 @@ import prometheus_client
 from requests.exceptions import RequestException
 
 from modules.config import Config
-# from modules.array import Array
-# from modules.bedirector import BeDirector
-# from modules.beport import BePort
-# from modules.extdirector import ExternalDirector
-# from modules.fedirector import FeDirector
-# from modules.feport import FePort
-# from modules.rdfdirector import RdfDirector
-# from modules.rdfport import RdfPort
 from modules.storagegroup import StorageGroup
 from modules.volumes import Volumes
 
 METRIC_CLASSES = {
-    # 'Array': Array,
-    # 'BEDirector': BeDirector,
-    # 'BEPort': BePort,
-    # 'ExternalDirector': ExternalDirector,
-    # 'FEDirector': FeDirector,
-    # 'FEPort': FePort,
-    # 'RDFDirector': RdfDirector,
-    # 'RDFPort': RdfPort,
     'StorageGroupCapacity': StorageGroup,
     'VolumesCapacity': Volumes
 }
@@ -54,11 +38,6 @@ def signal_handler(sig, frame):  # pylint: disable=unused-argument
 def create_metric_classes(pmax, cfg):
     ''' create custom metric class instances '''
     cls_instances = []
-    # for key in pmax.performance.real_time.get_categories():
-    #    if key not in METRIC_CLASSES:
-    #        logging.error("Powermax %s category %s not supported. Maybe mistyped?", pmax.array_id, key)
-    #        continue
-    #    cls_instances[key] = METRIC_CLASSES[key](pmax, config, base_tags, _metrics, metric_lock)
     for key, cls_name in METRIC_CLASSES.items():
         if key in cfg["categories"]:
             cls_instances.append(cls_name(pmax, cfg, _metrics, metric_lock))
@@ -118,12 +97,6 @@ def initial_unisphere_connection(cfg):
     array_list = con.common.get_array_list()
     con.close_session()
     logging.info("Unisphere %s found the following arrays: %s", cfg["hostname"], array_list)
-    # serials = []
-    # if config.cfg['powermax_serial']:
-    #    for serial in config.cfg['powermax_serial'].split(','):
-    #        if array_list.indexOf(serial) > -1:
-    #            serials.append(serial)
-    # else:
     serials = array_list
 
     if not serials:
@@ -157,22 +130,12 @@ def reconnect_unisphere(cfg, serial):
 
 
 #
-# parse_rt_metric
-# def parse_rt_metric(pmax, base_tags, realtime_classes):
-#     ''' collect and parse all realtime metrics '''
-#     for rt_cat in realtime_classes:
-#         rt_cat.collect_metrics(pmax)
-
-
-#
 # parse_metrics
 def parse_metrics(pmax, base_tags):
     ''' collect and parse all metrics '''
     instance_count = 0
     all_metrics = pmax.performance_enhanced.get_all_performance_metrics_for_system()
     for category in all_metrics:
-        # if category["id"] in METRIC_CLASSES:  # skip realtime categories
-        #    continue
         tags = base_tags.copy()
         instance_count += len(category["metric_instances"])
         for instance in category["metric_instances"]:
@@ -214,9 +177,6 @@ def run_thread_loop(pmax, cfg, custom_metrics):
                 category_count += categories
                 instance_count += instances
 
-            # if realtime_classes:
-            #    (rt_categories, rt_instances) = parse_rt_metric(pmax, base_tags, realtime_classes)
-
             (categories, instances) = parse_metrics(pmax, cfg["tags"])
             category_count += categories
             instance_count += instances
@@ -243,14 +203,8 @@ def thread_main(cfg, serial):
     pmax = connect_unisphere(cfg, serial)
     details = pmax.common.get_array(serial)
     logging.debug("powermax %s details: %s", serial, json.dumps(details, indent=4))
-    logging.info("Monitoring array serial=%s, model=%s, code=%s", details['symmetrixId'], details['model'], details['microcode'])
     if verify_performance_registration(pmax):
-        # if config.cfg["realtime"]:
-        #    if verify_realtime_performance_registration(pmax):
-        #        run_thread_loop(pmax, tags, create_metric_classes(pmax, tags))
-        #    else:
-        #        logging.error("Realtime selected but Powermax %s not enabled for real time performance", serial)
-        # else:
+        logging.info("Monitoring array serial=%s, model=%s, code=%s", details['symmetrixId'], details['model'], details['microcode'])
         time.sleep(random.randint(1, 5))
         run_thread_loop(pmax, cfg, create_metric_classes(pmax, cfg))
     else:
@@ -262,10 +216,6 @@ def thread_main(cfg, serial):
 def command_line_args():
     ''' retrieve command line args, if any '''
     parser = argparse.ArgumentParser(description='Collect PowerMax performance metrics')
-    # parser.add_argument('--interval', help='interval in seconds')
-    # parser.add_argument('--realtime', help='collect realtime metrics', action='store_true')
-    # parser.add_argument('--unisphere', help='unity system as ip,user,password,port,serial')
-    # parser.add_argument('--tags', help='custom tags to use for grouping')
     parser.add_argument('--config-file', help='configuration file name, default is pmax_config.json')
     parser.add_argument('--debug', help='enable debug logging', action='store_true')
     return parser.parse_args()
@@ -289,10 +239,8 @@ def main():
     for uni_cfg in config.cfg["unispheres"]:
         serials = initial_unisphere_connection(uni_cfg)
         for serial in serials:
-            if serial in uni_cfg["powermax_serial"]:
-                logging.info(uni_cfg["powermax_serial"])
+            if "powermax_serial" not in uni_cfg or serial in uni_cfg["powermax_serial"]:
                 pmax_cfg = uni_cfg.copy()
-                logging.info('Starting to monitor metrics for unisphere %s / %s', uni_cfg["hostname"], serial)
                 trd = threading.Thread(target=thread_main, args=(pmax_cfg, serial))
                 trd.start()
                 threadlist.append(trd)
