@@ -31,7 +31,7 @@ docker build -t pmaxperfpy:latest app
 The config file uses JSON syntax. It has a defaults sections and then one or more unisphere sections. Parameters, like username and password, for example, can be specified at the defaults section (valid for all Unispheres) or can be overriden on a per Unisphere section.
 Both username and password can be specfified as values directly or as a dictionary with the key "fromEnvironment" to take the value from an environment variable at runtime.
 
-Example configuration file with two Unisphere instances. The first one uses username and password from the defaults section. The second Unisphere uses the same username but the password is provided by an environment variable at runtime.
+Example configuration file with three Unisphere instances. The first one uses username and password from the defaults section. The second Unisphere uses the same username but the password is provided by an environment variable at runtime. The third one uses the option powermax_serial to limit from which arrays metrics will be collected.
 ```json
 "defaults": {
     "username": "smc",
@@ -45,8 +45,15 @@ Example configuration file with two Unisphere instances. The first one uses user
         "hostname": "5.6.7.8",
         "password": {
             "fromEnvironment": "PMAX5678_PASSWORD"
-        }
+        },
     }
+    {
+        "hostname": "unisphere.lab.local"
+        "powermax_serial": [
+            "000011223344",
+            "000055667788"
+        ]
+    },
 ]
 ```
 For Kubernetes please create a corresponding secret and configmap entry for the variables, i.e. ```kubectl create secret generic powermax5678 --from-literal=password=”smc”```
