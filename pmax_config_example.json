@@ -41,7 +41,12 @@
         },
         {
             "hostname": "4.3.2.1",
-            "password": "secret"
+            "password": "secret",
+            "powermax_serial": [
+		        "00019760xxxx",
+		        "00012000yyyy"
+	           ]
+
         },
         {
             "hostname": "5.6.7.8",

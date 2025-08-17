@@ -142,7 +142,7 @@ def reconnect_unisphere(cfg, serial):
     retries = 1
     connected = False
     while retries < Config.RECONNECT_RETRY and not connected:
-        logging.error("Lost connection to %s/%s, waiting %s seconds", cfg["hostnam"], serial, config.RECONNECT_INTERVAL)
+        logging.error("Lost connection to %s/%s, waiting %s seconds", cfg["hostname"], serial, config.RECONNECT_INTERVAL)
         time.sleep(config.RECONNECT_INTERVAL)
         try:
             pmaxcon = connect_unisphere(cfg, serial)
@@ -289,11 +289,13 @@ def main():
     for uni_cfg in config.cfg["unispheres"]:
         serials = initial_unisphere_connection(uni_cfg)
         for serial in serials:
-            pmax_cfg = uni_cfg.copy()
-            logging.info('Starting to monitor metrics for unisphere %s / %s', uni_cfg["hostname"], serial)
-            trd = threading.Thread(target=thread_main, args=(pmax_cfg, serial))
-            trd.start()
-            threadlist.append(trd)
+            if serial in uni_cfg["powermax_serial"]:
+                logging.info(uni_cfg["powermax_serial"])
+                pmax_cfg = uni_cfg.copy()
+                logging.info('Starting to monitor metrics for unisphere %s / %s', uni_cfg["hostname"], serial)
+                trd = threading.Thread(target=thread_main, args=(pmax_cfg, serial))
+                trd.start()
+                threadlist.append(trd)
 
     for trd in threadlist:
         trd.join()
