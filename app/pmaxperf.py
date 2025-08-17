@@ -72,16 +72,6 @@ def verify_performance_registration(con) -> bool:
 
 
 #
-# verify_realtime_performance_registration
-def verify_realtime_performance_registration(con) -> bool:
-    if hasattr(con.performance, 'real_time'):
-        result = con.performance.is_array_real_time_performance_registered()
-        logging.debug("Powermax %s is registered for realtime performance collection: %s", con.array_id, result)
-        return result
-    return False
-
-
-#
 # initial_unisphere_connection
 def initial_unisphere_connection(cfg):
     ''' Start the initial unisphere connection. A later on disconnect/reconnect

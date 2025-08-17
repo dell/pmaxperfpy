@@ -55,7 +55,7 @@ class Config():
                     if key not in self.cfg["defaults"]:
                         raise ValueError(f"Key '{key}' missing in both unisphere and defaults section in {self.config_file}")
                     unisphere[key] = self.cfg["defaults"][key]
-                if not unisphere[key] and key != "verify": # verify is allowed to be false
+                if not unisphere[key] and key != "verify":  # verify is allowed to be false
                     raise ValueError(f"Empty value for {key} in unisphere section in {self.config_file}")
 
             # hostname is the only required field
@@ -67,7 +67,7 @@ class Config():
             # resolve secrets
             for key in ["username", "password"]:
                 if isinstance(unisphere[key], dict) and "fromEnvironment" in unisphere[key]:
-                    logging.debug("Checking for environment variable %s", unisphere[key]["fromEnvironment"]) 
+                    logging.debug("Checking for environment variable %s", unisphere[key]["fromEnvironment"])
                     if unisphere[key]["fromEnvironment"] not in os.environ:
                         raise ValueError(f'environment variable {unisphere[key]["fromEnvironment"]} not found')
                     logging.debug("Env variable content: %s", os.environ.get(unisphere[key]["fromEnvironment"]))

@@ -5,12 +5,22 @@ import prometheus_client
 class Metric():
     '''base class for metrics'''
 
+    def gather_values(self):
+        ''' gather current metric values '''
+        raise NotImplementedError
+
+    def setup(self):
+        ''' setup instance, called by parent constructor '''
+        raise NotImplementedError
+
     def __init__(self, pmax, config, global_metrics, thread_lock):
         '''	constructor '''
         self.pmax = pmax
         self.config = config
         self._metrics = global_metrics
         self.thread_lock = thread_lock
+        self.category = None
+        self.metric_names = {}
         self.setup()
 
     def parse_metrics(self):

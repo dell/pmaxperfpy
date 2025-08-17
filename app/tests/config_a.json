@@ -1,0 +1,44 @@
+{
+    "defaults": {
+        "username": "smc",
+        "password": "smc",
+        "unisphere_port": 8443,
+        "verify": false,
+        "interval": 300,
+        "exposed_port": 8080,
+        "local_arrays_only": false,
+        "categories": [
+            "Array",
+            "BEDirector",
+            "Disk",
+            "DiskGroup",
+            "DiskTechPool",
+            "FEDirector",
+            "FEPort",
+            "Host",
+            "IPInterface",
+            "Initiator",
+            "MaskingView",
+            "PortGroup",
+            "RDFA",
+            "RDFDirector",
+            "RDFPort",
+            "RDFS",
+            "SRP",
+            "StorageGroup",
+            "StorageGroupCapacity"
+        ],
+        "disabled_categories": [
+            "Board",
+            "DIMM",
+            "EMDirector",
+            "Endpoint",
+            "VolumesCapacity"
+        ]
+    },
+    "unispheres": [
+        {
+            "hostname": "1.2.3.4"
+        }
+    ]
+}

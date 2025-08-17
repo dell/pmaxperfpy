@@ -1,5 +1,5 @@
 ## Makefile
-pythonfiles = *.py modules/*.py
+pythonfiles = app/*.py app/modules/*.py
 
 flake8: $(pythonfiles)
 	flake8 --ignore=E501 $(pythonfiles)
@@ -16,7 +16,8 @@ build: Dockerfile lint ## build docker container
 
 lint: flake8 pylint ## code linting (checking)
 
-test: lint ## run code tests
+test: ## run code tests
+	python -m unittest app/tests/test*.py -v
 
 help: ## this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "%-30s %s\n", $$1, $$2}'
