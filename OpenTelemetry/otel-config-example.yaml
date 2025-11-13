@@ -6,7 +6,7 @@ receivers:
           - job_name: 'otel-collector'
             scrape_interval: 5s
             static_configs:
-            # pmax collector input address/port
+            # pmax collector input address/port. Please use IP instead of localhost for containers
               - targets: ['0.0.0.0:8080']
 exporters:
    otlphttp:
@@ -183,4 +183,4 @@ service:
     metrics:
       receivers: [prometheus]
       processors: [metricstransform]
-      exporters: [otlphttp, file/metrics]
+      exporters: [otlphttp]
