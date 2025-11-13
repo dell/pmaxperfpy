@@ -13,6 +13,8 @@ class Config():
     SLEEP = 5  # internal sleep interval (for faster thread stopping)
 
     SECTION_KEYS = ["defaults", "unispheres"]
+
+    # value = True means required, False is for optional
     DEFAULTS_KEYS = {
         "username": False,
         "password": False,
@@ -25,6 +27,21 @@ class Config():
     }
     UNISPHERE_KEYS = ["username", "password", "unisphere_port", "verify", "interval", "categories"]
 
+    #
+    # Constructor
+    def __init__(self, args):
+        ''' constructor '''
+        self.cfg = {}
+        self.config_file = Config.CONFIG_FILE
+        if args.config_file:
+            self.config_file = args.config_file
+        self.update_config_from_file()
+        self.check_required_sections_and_keys()
+        self.check_and_set_unisphere_defaults()
+        self.check_certificates_exist()
+
+    #
+    # update_config_from_file
     def update_config_from_file(self):
         ''' read configfile and update config '''
         if not os.path.isfile(self.config_file):
@@ -34,9 +51,14 @@ class Config():
             with open(self.config_file, 'r', encoding="UTF-8") as f_handle:
                 self.cfg = json.load(f_handle)
         except (OSError, IOError) as err:
-            raise ValueError(f'Uable to open {self.config_file}: {err.strerror}')
+            raise ValueError(f'Uable to open {self.config_file}: {err.strerror}') from err
         except json.decoder.JSONDecodeError as err:
-            raise ValueError(f'Error parsing {self.config_file}: {err}')
+            raise ValueError(f'Error parsing {self.config_file}: {err}') from err
+
+    #
+    # check_required_sections_and_keys
+    def check_required_sections_and_keys(self):
+        ''' verify all rquired sections and keys exist '''
 
         # required sections
         for key in Config.SECTION_KEYS:
@@ -44,9 +66,14 @@ class Config():
                 raise ValueError(f"Missing section '{key}' in {self.config_file}")
 
         # required keys
-        for key in Config.DEFAULTS_KEYS:
-            if key not in self.cfg["defaults"] and Config.DEFAULTS_KEYS[key]:
+        for key, required_value in Config.DEFAULTS_KEYS.items():
+            if key not in self.cfg["defaults"] and required_value:
                 raise ValueError(f"Missing key '{key}' in section 'defaults' in {self.config_file}")
+
+    #
+    # check_and_set_unisphere_defaults
+    def check_and_set_unisphere_defaults(self):
+        ''' fill unisphere sections with defaults and check for required keys '''
 
         # fill in defaults for each unisphere
         for unisphere in self.cfg["unispheres"]:
@@ -77,10 +104,12 @@ class Config():
                 if not unisphere[key]:
                     raise ValueError(f'Empty value for {unisphere["hostname"]} {key}.')
 
-    def __init__(self, args):
-        ''' constructor '''
-        self.cfg = {}
-        self.config_file = Config.CONFIG_FILE
-        if args.config_file:
-            self.config_file = args.config_file
-        self.update_config_from_file()
+    #
+    # check_certificates_exist
+    def check_certificates_exist(self):
+        ''' if certificates are given check the files exist '''
+        for key in ["keyfile", "certfile"]:
+            if key in self.cfg["defaults"] and self.cfg["defaults"][key]:
+                fname = os.path.join(os.path.dirname(__file__), "..", self.cfg["defaults"][key])
+                if not os.path.exists(fname) or not os.path.isfile(fname):
+                    raise ValueError(f'File {fname} does not exist')

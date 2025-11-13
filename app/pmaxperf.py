@@ -222,7 +222,14 @@ def main():
     signal.signal(signal.SIGTERM, signal_handler)
     random.seed()
 
-    prometheus_client.start_http_server(config.cfg["defaults"]['exposed_port'])
+    if "keyfile" in config.cfg["defaults"] and "certfile" in config.cfg["defaults"]:
+        prometheus_client.start_http_server(
+            config.cfg["defaults"]['exposed_port'],
+            keyfile=config.cfg["defaults"]["keyfile"],
+            certfile=config.cfg["defaults"]["certfile"]
+        )
+    else:
+        prometheus_client.start_http_server(config.cfg["defaults"]['exposed_port'])
     logging.info('Exposing data for prometheus at port %s', config.cfg["defaults"]['exposed_port'])
 
     threadlist = []
@@ -245,10 +252,10 @@ if __name__ == '__main__':
     # initialize global variables
     args = command_line_args()
 
-    log_level = logging.INFO
+    LOG_LEVEL = logging.INFO
     if args.debug:
-        log_level = logging.DEBUG
-    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', datefmt='%d.%m.%Y-%H:%M:%S', level=log_level)
+        LOG_LEVEL = logging.DEBUG
+    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', datefmt='%d.%m.%Y-%H:%M:%S', level=LOG_LEVEL)
 
     try:
         config = Config(args)

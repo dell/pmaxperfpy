@@ -18,3 +18,8 @@ class ConfigTests(unittest.TestCase):
         with self.assertRaises(ValueError) as error:
             config.Config(Testfile("app/tests/config_b.json"))
         self.assertEqual(str(error.exception), "Missing section 'defaults' in app/tests/config_b.json")
+
+    def test_certfile_not_existing(self):
+        with self.assertRaises(ValueError) as error:
+            config.Config(Testfile("app/tests/config_c.json"))
+        self.assertTrue(str(error.exception).endswith("invalid does not exist"))

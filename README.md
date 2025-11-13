@@ -20,6 +20,20 @@ prometheus-client
 pyu4v >= 10.1.0.2
 ```
 
+### Add key and certificate (if required)
+The collector uses plain HTTP, by default. If encryption (HTTPS/TLS) is required, please copy a key and certicate file to the app/ directory so they automatically will be included inside the container. And add the filenames without path to the defaults section in the config file.
+The certificate should be in PEM format and can include chained intermediate / root CA certificate(s).
+```
+$ cat app/keyfile.key    # for your verification
+$ cat app/certfile.cert  # for your verification
+```
+```json
+"defaults": {
+    "keyfile": "keyfile.key",
+    "certfile": "certfile.cert"
+}
+```
+
 ### Build the container image
 ```
 docker build -t pmaxperfpy:latest app

@@ -1,0 +1,19 @@
+{
+    "defaults": {
+        "certfile": "invalid",
+        "username": "smc",
+        "password": "smc",
+        "unisphere_port": 8443,
+        "verify": true,
+        "interval": 300,
+        "exposed_port": 8080,
+        "categories": [
+            "Array"
+        ]
+    },
+    "unispheres": [
+        {
+            "hostname": "1.2.3.4"
+        }
+    ]
+}

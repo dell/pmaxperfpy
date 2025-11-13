@@ -30,9 +30,8 @@ class Metric():
             tags = self.config["tags"].copy()
             tags[self.category] = element["id"]
             instance_count += 1
-            for metric_name in self.metric_names:
-                metric_key = self.metric_names[metric_name]
-                full_name = f'powermax_{self.category}_{metric_name}'
+            for key, value in self.metric_names.items():
+                full_name = f'powermax_{self.category}_{key}'
 
                 if full_name in self._metrics:
                     p_metric = self._metrics[full_name]
@@ -41,5 +40,5 @@ class Metric():
                         p_metric = prometheus_client.Gauge(full_name, '', labelnames=tags.keys())
                         self._metrics[full_name] = p_metric
                 p_metric.labels(**tags).set_to_current_time()
-                p_metric.labels(**tags).set(element[metric_key])
+                p_metric.labels(**tags).set(element[value])
         return (len(self.metric_names), instance_count)

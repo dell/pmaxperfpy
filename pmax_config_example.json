@@ -6,6 +6,8 @@
         "verify": false,
         "interval": 300,
         "exposed_port": 8080,
+        "certfile": "",
+        "keyfile": "",
         "categories": [
             "Array",
             "BEDirector",
