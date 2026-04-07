@@ -114,6 +114,19 @@ class Config():
 
     #
     # check_alerts_config
+    @staticmethod
+    def _normalize_alert_filter(value, allowed, label, config_file):
+        ''' normalize a severity/type value (string or list) into a list and validate entries '''
+        if isinstance(value, str):
+            value = [value]
+        if not isinstance(value, list) or not value:
+            raise ValueError(f"'alerts.{label}' must be a string or non-empty list in {config_file}")
+        for entry in value:
+            if entry not in allowed:
+                raise ValueError(f"Invalid alerts {label} '{entry}', "
+                                 f"must be one of {allowed} in {config_file}")
+        return value
+
     def check_alerts_config(self):
         ''' validate alerts configuration if present '''
         for unisphere in self.cfg["unispheres"]:
@@ -126,13 +139,11 @@ class Config():
                 if not isinstance(alerts['interval'], int) or alerts['interval'] <= 0:
                     raise ValueError(f"'alerts.interval' must be a positive integer in {self.config_file}")
             if 'severity' in alerts:
-                if alerts['severity'] not in Config.ALERT_SEVERITY_VALUES:
-                    raise ValueError(f"Invalid alerts severity '{alerts['severity']}', "
-                                     f"must be one of {Config.ALERT_SEVERITY_VALUES} in {self.config_file}")
+                alerts['severity'] = self._normalize_alert_filter(
+                    alerts['severity'], Config.ALERT_SEVERITY_VALUES, 'severity', self.config_file)
             if 'type' in alerts:
-                if alerts['type'] not in Config.ALERT_TYPE_VALUES:
-                    raise ValueError(f"Invalid alerts type '{alerts['type']}', "
-                                     f"must be one of {Config.ALERT_TYPE_VALUES} in {self.config_file}")
+                alerts['type'] = self._normalize_alert_filter(
+                    alerts['type'], Config.ALERT_TYPE_VALUES, 'type', self.config_file)
 
     #
     # check_certificates_exist

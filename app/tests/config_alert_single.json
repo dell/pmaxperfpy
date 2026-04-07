@@ -12,7 +12,7 @@
         "alerts": {
             "enabled": true,
             "interval": 900,
-            "severity": ["WARNING", "INVALID_VALUE"],
+            "severity": "WARNING",
             "type": "ARRAY"
         }
     },

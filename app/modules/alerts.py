@@ -2,6 +2,7 @@
 import logging
 import time
 from datetime import datetime, timedelta
+from itertools import product
 
 import prometheus_client
 from requests.exceptions import RequestException
@@ -42,29 +43,43 @@ class Alerts():
         month = MONTHS[cutoff.month - 1]
         return f'>{month}-{cutoff.strftime("%d-%Y %H:%M:%S.000")}'
 
+    def _build_filter_combinations(self):
+        ''' build list of (severity, type) filter dicts from the cartesian product of configured values '''
+        severities = self.alert_cfg.get('severity', [None])
+        types = self.alert_cfg.get('type', [None])
+        combinations = []
+        for sev, typ in product(severities, types):
+            filt = {}
+            if sev is not None:
+                filt['severity'] = sev
+            if typ is not None:
+                filt['_type'] = typ
+            combinations.append(filt)
+        return combinations
+
     def _fetch_alerts(self):
         ''' fetch alert ids and their details from Unisphere '''
-        kwargs = {
+        base_kwargs = {
             'array': self.cfg.get('serial'),
             'created_date': self.calculate_created_date(self.interval)
         }
-        if 'severity' in self.alert_cfg:
-            kwargs['severity'] = self.alert_cfg['severity']
-        if 'type' in self.alert_cfg:
-            kwargs['_type'] = self.alert_cfg['type']
-
-        alert_ids = self.pmax.system.get_alert_ids(**kwargs)
-        if not alert_ids:
-            return []
-
+        seen_ids = set()
         alerts = []
-        for alert_id in alert_ids:
-            try:
-                details = self.pmax.system.get_alert_details(alert_id)
-                if details:
-                    alerts.append(details)
-            except RequestException as err:
-                logging.warning('Failed to get details for alert %s: %s', alert_id, str(err))
+        for filt in self._build_filter_combinations():
+            kwargs = {**base_kwargs, **filt}
+            alert_ids = self.pmax.system.get_alert_ids(**kwargs)
+            if not alert_ids:
+                continue
+            for alert_id in alert_ids:
+                if alert_id in seen_ids:
+                    continue
+                seen_ids.add(alert_id)
+                try:
+                    details = self.pmax.system.get_alert_details(alert_id)
+                    if details:
+                        alerts.append(details)
+                except RequestException as err:
+                    logging.warning('Failed to get details for alert %s: %s', alert_id, str(err))
         return alerts
 
     def _update_metrics(self, alerts):

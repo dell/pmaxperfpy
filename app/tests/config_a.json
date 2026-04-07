@@ -38,8 +38,8 @@
         "alerts": {
             "enabled": true,
             "interval": 900,
-            "severity": "WARNING",
-            "type": "ARRAY"
+            "severity": ["WARNING", "CRITICAL"],
+            "type": ["ARRAY", "PERFORMANCE"]
         }
     },
     "unispheres": [

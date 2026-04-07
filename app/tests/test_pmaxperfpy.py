@@ -71,7 +71,7 @@ class AlertsFetchTests(unittest.TestCase):
         '''configured severity and type are forwarded to get_alert_ids'''
         alerts_obj, mock_pmax = self._make_alerts_instance({
             'enabled': True, 'interval': 900,
-            'severity': 'WARNING', 'type': 'ARRAY'
+            'severity': ['WARNING'], 'type': ['ARRAY']
         })
         mock_pmax.system.get_alert_ids.return_value = []
         alerts_obj._fetch_alerts()
@@ -114,6 +114,64 @@ class AlertsFetchTests(unittest.TestCase):
 
         self.assertEqual(len(result), 3)
         self.assertEqual(mock_pmax.system.get_alert_details.call_count, 3)
+
+    def test_cartesian_product_calls(self):
+        '''multiple severity and type values produce cartesian product of API calls'''
+        alerts_obj, mock_pmax = self._make_alerts_instance({
+            'enabled': True, 'interval': 900,
+            'severity': ['WARNING', 'CRITICAL'], 'type': ['ARRAY', 'PERFORMANCE']
+        })
+        mock_pmax.system.get_alert_ids.return_value = []
+        alerts_obj._fetch_alerts()
+
+        self.assertEqual(mock_pmax.system.get_alert_ids.call_count, 4)
+        calls = [c[1] for c in mock_pmax.system.get_alert_ids.call_args_list]
+        sev_type_pairs = [(c['severity'], c['_type']) for c in calls]
+        self.assertIn(('WARNING', 'ARRAY'), sev_type_pairs)
+        self.assertIn(('WARNING', 'PERFORMANCE'), sev_type_pairs)
+        self.assertIn(('CRITICAL', 'ARRAY'), sev_type_pairs)
+        self.assertIn(('CRITICAL', 'PERFORMANCE'), sev_type_pairs)
+
+    def test_cartesian_product_deduplicates_alert_ids(self):
+        '''duplicate alert ids across combinations are fetched only once'''
+        alerts_obj, mock_pmax = self._make_alerts_instance({
+            'enabled': True, 'interval': 900,
+            'severity': ['WARNING', 'CRITICAL'], 'type': ['ARRAY']
+        })
+        mock_pmax.system.get_alert_ids.side_effect = [['100', '200'], ['200', '300']]
+        mock_pmax.system.get_alert_details.side_effect = [
+            {'alertId': '100'}, {'alertId': '200'}, {'alertId': '300'}
+        ]
+        result = alerts_obj._fetch_alerts()
+
+        self.assertEqual(len(result), 3)
+        self.assertEqual(mock_pmax.system.get_alert_details.call_count, 3)
+
+    def test_severity_only_cartesian(self):
+        '''multiple severities with no type still produce correct calls'''
+        alerts_obj, mock_pmax = self._make_alerts_instance({
+            'enabled': True, 'interval': 900,
+            'severity': ['WARNING', 'CRITICAL']
+        })
+        mock_pmax.system.get_alert_ids.return_value = []
+        alerts_obj._fetch_alerts()
+
+        self.assertEqual(mock_pmax.system.get_alert_ids.call_count, 2)
+        for call in mock_pmax.system.get_alert_ids.call_args_list:
+            self.assertNotIn('_type', call[1])
+
+    def test_type_only_cartesian(self):
+        '''multiple types with no severity still produce correct calls'''
+        alerts_obj, mock_pmax = self._make_alerts_instance({
+            'enabled': True, 'interval': 900,
+            'type': ['ARRAY', 'SERVER']
+        })
+        mock_pmax.system.get_alert_ids.return_value = []
+        alerts_obj._fetch_alerts()
+
+        self.assertEqual(mock_pmax.system.get_alert_ids.call_count, 2)
+        for call in mock_pmax.system.get_alert_ids.call_args_list:
+            self.assertNotIn('severity', call[1])
 
 
 class AlertsMetricsTests(unittest.TestCase):

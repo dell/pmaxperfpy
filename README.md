@@ -49,7 +49,13 @@ Example configuration file with three Unisphere instances. The first one uses us
 ```json
 "defaults": {
     "username": "smc",
-    "password": "secret"
+    "password": "secret",
+    "alerts": {
+        "enabled": true,
+        "interval": 900,
+        "severity": ["WARNING", "CRITICAL"],
+        "type": ["ARRAY", "PERFORMANCE"]
+    }
 }
 "unispheres": [
     {
@@ -72,6 +78,43 @@ Example configuration file with three Unisphere instances. The first one uses us
 ```
 For Kubernetes please create a corresponding secret and configmap entry for the variables, i.e. ```kubectl create secret generic powermax5678 --from-literal=password=”smc”```
 
+### Alert collection
+Alert collection can be enabled by adding an `alerts` object to the defaults or to an individual unisphere section. When defined in the defaults section, the configuration is inherited by all unisphere instances that do not define their own alerts section.
+
+| Key | Required | Description |
+|---|---|---|
+| `enabled` | yes | Set to `true` to enable alert collection |
+| `interval` | no | Collection interval in seconds (default: `900`) |
+| `severity` | no | Filter by severity. A single string or a list of values. Valid values: `NORMAL`, `INFORMATION`, `MINOR`, `WARNING`, `CRITICAL`, `FATAL` |
+| `type` | no | Filter by alert type. A single string or a list of values. Valid values: `ARRAY`, `PERFORMANCE`, `SERVER` |
+
+When both `severity` and `type` are specified as lists, the collector queries the API for every combination (cartesian product) of the configured values and deduplicates the results. For example, two severities and two types produce four API queries per collection cycle.
+
+Single-string values are accepted for backward compatibility and are normalized to a single-element list internally.
+
+Example with multiple severity and type filters:
+```json
+"defaults": {
+    "alerts": {
+        "enabled": true,
+        "interval": 900,
+        "severity": ["WARNING", "CRITICAL"],
+        "type": ["ARRAY", "PERFORMANCE"]
+    }
+}
+```
+
+Example with a single filter value (backward compatible):
+```json
+"defaults": {
+    "alerts": {
+        "enabled": true,
+        "severity": "CRITICAL"
+    }
+}
+```
+
+Alerts are exposed as a Prometheus gauge metric named `powermax_alert_active` with labels `serial`, `alert_id`, `severity`, `type`, `state`, `object`, `object_type`, `description`, and `created_date`. Alerts that are no longer returned by the API are automatically removed from the metric set.
 
 ### Run at the command line or use the provided docker start script
 ```

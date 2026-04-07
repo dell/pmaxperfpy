@@ -27,7 +27,14 @@ class ConfigTests(unittest.TestCase):
     def test_alerts_config_valid(self):
         cfg = config.Config(Testfile("app/tests/config_a.json"))
         self.assertIn('alerts', cfg.cfg['unispheres'][0])
-        self.assertEqual(cfg.cfg['unispheres'][0]['alerts']['severity'], 'WARNING')
+        self.assertEqual(cfg.cfg['unispheres'][0]['alerts']['severity'], ['WARNING', 'CRITICAL'])
+        self.assertEqual(cfg.cfg['unispheres'][0]['alerts']['type'], ['ARRAY', 'PERFORMANCE'])
+
+    def test_alerts_config_single_string_normalized_to_list(self):
+        cfg = config.Config(Testfile("app/tests/config_alert_single.json"))
+        alerts = cfg.cfg['unispheres'][0]['alerts']
+        self.assertEqual(alerts['severity'], ['WARNING'])
+        self.assertEqual(alerts['type'], ['ARRAY'])
 
     def test_alerts_config_missing_is_ok(self):
         cfg = config.Config(Testfile("app/tests/config_alert_missing.json"))
