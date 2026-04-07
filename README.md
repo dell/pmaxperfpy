@@ -114,7 +114,12 @@ Example with a single filter value (backward compatible):
 }
 ```
 
-Alerts are exposed as a Prometheus gauge metric named `powermax_alert_active` with labels `serial`, `alert_id`, `severity`, `type`, `state`, `object`, `object_type`, `description`, and `created_date`. Alerts that are no longer returned by the API are automatically removed from the metric set.
+Alert metrics are served on the same `/metrics` endpoint as all other performance metrics, so no additional Prometheus scrape target is needed. They are exposed as a Prometheus gauge named `powermax_alert_active` with labels `serial`, `alert_id`, `severity`, `type`, `state`, `object`, `object_type`, `description`, and `created_date`. Alerts that are no longer returned by the API are automatically removed from the metric set.
+
+Example output from `/metrics`:
+```
+powermax_alert_active{serial="000123456789",alert_id="1234",severity="WARNING",type="ARRAY",state="NEW",object="SRP_0",object_type="SRP",description="threshold exceeded",created_date="1234567890"} 1
+```
 
 ### Run at the command line or use the provided docker start script
 ```
