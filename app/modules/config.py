@@ -27,6 +27,9 @@ class Config():
     }
     UNISPHERE_KEYS = ["username", "password", "unisphere_port", "verify", "interval", "categories"]
 
+    ALERT_SEVERITY_VALUES = ['NORMAL', 'INFORMATION', 'MINOR', 'WARNING', 'CRITICAL', 'FATAL']
+    ALERT_TYPE_VALUES = ['ARRAY', 'PERFORMANCE', 'SERVER']
+
     #
     # Constructor
     def __init__(self, args):
@@ -38,6 +41,7 @@ class Config():
         self.update_config_from_file()
         self.check_required_sections_and_keys()
         self.check_and_set_unisphere_defaults()
+        self.check_alerts_config()
         self.check_certificates_exist()
 
     #
@@ -103,6 +107,32 @@ class Config():
                     unisphere[key] = os.environ.get(unisphere[key]["fromEnvironment"])
                 if not unisphere[key]:
                     raise ValueError(f'Empty value for {unisphere["hostname"]} {key}.')
+
+            # inherit alerts config from defaults if not set per unisphere
+            if 'alerts' not in unisphere and 'alerts' in self.cfg['defaults']:
+                unisphere['alerts'] = self.cfg['defaults']['alerts'].copy()
+
+    #
+    # check_alerts_config
+    def check_alerts_config(self):
+        ''' validate alerts configuration if present '''
+        for unisphere in self.cfg["unispheres"]:
+            if 'alerts' not in unisphere:
+                continue
+            alerts = unisphere['alerts']
+            if not isinstance(alerts, dict):
+                raise ValueError(f"'alerts' must be a JSON object in {self.config_file}")
+            if 'interval' in alerts:
+                if not isinstance(alerts['interval'], int) or alerts['interval'] <= 0:
+                    raise ValueError(f"'alerts.interval' must be a positive integer in {self.config_file}")
+            if 'severity' in alerts:
+                if alerts['severity'] not in Config.ALERT_SEVERITY_VALUES:
+                    raise ValueError(f"Invalid alerts severity '{alerts['severity']}', "
+                                     f"must be one of {Config.ALERT_SEVERITY_VALUES} in {self.config_file}")
+            if 'type' in alerts:
+                if alerts['type'] not in Config.ALERT_TYPE_VALUES:
+                    raise ValueError(f"Invalid alerts type '{alerts['type']}', "
+                                     f"must be one of {Config.ALERT_TYPE_VALUES} in {self.config_file}")
 
     #
     # check_certificates_exist

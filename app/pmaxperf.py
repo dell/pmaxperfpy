@@ -17,6 +17,7 @@ from requests.exceptions import RequestException
 from modules.config import Config
 from modules.storagegroup import StorageGroup
 from modules.volumes import Volumes
+from modules.alerts import Alerts
 
 METRIC_CLASSES = {
     'StorageGroupCapacity': StorageGroup,
@@ -202,6 +203,19 @@ def thread_main(cfg, serial):
 
 
 #
+# alert_thread_main
+def alert_thread_main(cfg, serial):
+    ''' main thread for alert collection on each powermax '''
+    cfg["serial"] = serial
+    cfg["tags"] = {"serial": serial}
+    pmax = connect_unisphere(cfg, serial)
+    logging.info("Starting alert collection for serial=%s", serial)
+    alerts_collector = Alerts(pmax, cfg, _metrics, metric_lock, main_stop_event,
+                              config.SLEEP, reconnect_unisphere)
+    alerts_collector.run_loop()
+
+
+#
 # command_line_args
 def command_line_args():
     ''' retrieve command line args, if any '''
@@ -241,6 +255,13 @@ def main():
                 trd = threading.Thread(target=thread_main, args=(pmax_cfg, serial))
                 trd.start()
                 threadlist.append(trd)
+
+                # launch alert collection thread if enabled for this unisphere
+                if uni_cfg.get('alerts', {}).get('enabled'):
+                    alert_cfg = uni_cfg.copy()
+                    alert_trd = threading.Thread(target=alert_thread_main, args=(alert_cfg, serial))
+                    alert_trd.start()
+                    threadlist.append(alert_trd)
 
     for trd in threadlist:
         trd.join()

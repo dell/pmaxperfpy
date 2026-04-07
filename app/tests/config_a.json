@@ -34,7 +34,13 @@
             "EMDirector",
             "Endpoint",
             "VolumesCapacity"
-        ]
+        ],
+        "alerts": {
+            "enabled": true,
+            "interval": 900,
+            "severity": "WARNING",
+            "type": "ARRAY"
+        }
     },
     "unispheres": [
         {

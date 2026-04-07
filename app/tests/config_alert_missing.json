@@ -1,0 +1,18 @@
+{
+    "defaults": {
+        "username": "smc",
+        "password": "smc",
+        "unisphere_port": 8443,
+        "verify": false,
+        "interval": 300,
+        "exposed_port": 8080,
+        "categories": [
+            "Array"
+        ]
+    },
+    "unispheres": [
+        {
+            "hostname": "1.2.3.4"
+        }
+    ]
+}
