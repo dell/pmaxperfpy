@@ -98,6 +98,12 @@ systemctl enable docker-grafana.service
 systemctl enable docker-prometheus.service
 ```
 
+### Performance Categories
+
+The `categories` list in the configuration file controls which performance categories are collected from the array. Only the categories listed in the config will be queried each interval, reducing the number of API calls to Unisphere. The available category list is fetched once at startup and cached for the lifetime of the thread.
+
+Categories listed in the config that do not exist on the array are logged as warnings and skipped. Custom metric classes (`StorageGroupCapacity`, `VolumesCapacity`) are handled separately via provisioning API calls and are not affected by the performance categories filter.
+
 ### OpenTelemetry Setup
 
 Please see the [OpenTelemetry README](OpenTelemetry/README.md) in the OpenTelemetry folder for information on the setup and configuration of the OpenTelemetry Collector for the PowerMax performance collector. 

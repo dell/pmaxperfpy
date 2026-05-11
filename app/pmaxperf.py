@@ -115,7 +115,10 @@ def initial_unisphere_connection(cfg):
         logging.error("Unisphere %s: %s", cfg["hostname"], str(err))
         return []
 
-    array_list = con.common.get_array_list()
+    perf_registered_arrays = con.performance.get_array_keys()
+    array_list = [item["symmetrixId"] for item in perf_registered_arrays["arrayInfo"]]
+
+
     con.close_session()
     logging.info("Unisphere %s found the following arrays: %s", cfg["hostname"], array_list)
     # serials = []
@@ -157,6 +160,31 @@ def reconnect_unisphere(cfg, serial):
 
 
 #
+# get_filtered_categories
+def get_filtered_categories(pmax, cfg):
+    ''' fetch available performance categories once and filter by config.
+        Returns a list of category ID strings to collect each interval.
+    '''
+    available = pmax.performance_enhanced.get_performance_categories_list()
+    available_ids = [cat['id'] for cat in available]
+    configured = cfg.get('categories', [])
+
+    # filter to only categories that exist on this array
+    filtered = [cat_id for cat_id in configured if cat_id in available_ids]
+
+    # warn about configured categories not available on the array
+    for cat_id in configured:
+        if cat_id in METRIC_CLASSES:
+            continue
+        if cat_id not in available_ids:
+            logging.warning("%s: configured category '%s' not available on array", cfg['serial'], cat_id)
+
+    logging.info("%s: collecting %d of %d available performance categories",
+                 cfg['serial'], len(filtered), len(available_ids))
+    return filtered
+
+
+#
 # parse_rt_metric
 # def parse_rt_metric(pmax, base_tags, realtime_classes):
 #     ''' collect and parse all realtime metrics '''
@@ -166,21 +194,23 @@ def reconnect_unisphere(cfg, serial):
 
 #
 # parse_metrics
-def parse_metrics(pmax, base_tags):
-    ''' collect and parse all metrics '''
+def parse_metrics(pmax, base_tags, perf_categories):
+    ''' collect and parse metrics for the given list of categories '''
     instance_count = 0
-    all_metrics = pmax.performance_enhanced.get_all_performance_metrics_for_system()
-    for category in all_metrics:
-        # if category["id"] in METRIC_CLASSES:  # skip realtime categories
-        #    continue
+    category_count = 0
+    for cat_id in perf_categories:
+        response = pmax.performance_enhanced.get_category_metrics(cat_id)
+        if response is None:
+            continue
+        category_count += 1
         tags = base_tags.copy()
-        instance_count += len(category["metric_instances"])
-        for instance in category["metric_instances"]:
-            tags[category["id"]] = instance["id"]
+        instance_count += len(response["metric_instances"])
+        for instance in response["metric_instances"]:
+            tags[response["id"]] = instance["id"]
             for key in instance["metrics"][0]:
                 if key == "timestamp":
                     continue
-                metric_name = "powermax_" + category["id"] + "_" + key
+                metric_name = "powermax_" + response["id"] + "_" + key
                 if metric_name in _metrics:
                     p_metric = _metrics[metric_name]
                 else:
@@ -189,12 +219,12 @@ def parse_metrics(pmax, base_tags):
                         _metrics[metric_name] = p_metric
                 p_metric.labels(**tags).set_to_current_time()
                 p_metric.labels(**tags).set(instance["metrics"][0][key])
-    return (len(all_metrics), instance_count)
+    return (category_count, instance_count)
 
 
 #
 # run_thread_loop
-def run_thread_loop(pmax, cfg, custom_metrics):
+def run_thread_loop(pmax, cfg, custom_metrics, perf_categories):
     ''' main thread loop for each powermax '''
 
     # use 10 seconds sleep internally to allow faster stopping of threads
@@ -217,7 +247,7 @@ def run_thread_loop(pmax, cfg, custom_metrics):
             # if realtime_classes:
             #    (rt_categories, rt_instances) = parse_rt_metric(pmax, base_tags, realtime_classes)
 
-            (categories, instances) = parse_metrics(pmax, cfg["tags"])
+            (categories, instances) = parse_metrics(pmax, cfg["tags"], perf_categories)
             category_count += categories
             instance_count += instances
 
@@ -251,8 +281,9 @@ def thread_main(cfg, serial):
         #    else:
         #        logging.error("Realtime selected but Powermax %s not enabled for real time performance", serial)
         # else:
+        perf_categories = get_filtered_categories(pmax, cfg)
         time.sleep(random.randint(1, 5))
-        run_thread_loop(pmax, cfg, create_metric_classes(pmax, cfg))
+        run_thread_loop(pmax, cfg, create_metric_classes(pmax, cfg), perf_categories)
     else:
         logging.error("Powermax %s/%s not enabled for performance collection", cfg["hostname"], serial)
 
