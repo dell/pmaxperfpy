@@ -1580,6 +1580,7 @@
               "mode": "off"
             }
           },
+          "fieldMinMax": false,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -2203,7 +2204,7 @@
               }
             ]
           },
-          "unit": "dectbytes"
+          "unit": "decgbytes"
         },
         "overrides": []
       },
@@ -3267,7 +3268,7 @@
   "timezone": "",
   "title": "PowerMax",
   "uid": "kj5fdiBohgYh",
-  "version": 5,
+  "version": 7,
   "weekStart": "",
   "id": null
 }
